@@ -36,7 +36,7 @@ async fn send_email(to: &str, subject: &str, body: String) -> Result<(), String>
         .port(port)
         .build();
 
-    mailer.send(&email).await.map_err(|e| e.to_string())?;
+    mailer.send(email).await.map_err(|e| e.to_string())?;
     Ok(())
 }
 
