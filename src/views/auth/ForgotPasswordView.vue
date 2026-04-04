@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
+import AuthLayout from '../../components/AuthLayout.vue'
 
 const email = ref('')
 const error = ref('')
@@ -22,50 +23,52 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-md w-full max-w-md p-8">
-
-      <div class="text-center mb-8">
-        <h1 class="text-2xl font-bold text-gray-900">Recuperar contraseña</h1>
-        <p class="text-gray-500 text-sm mt-1">Te enviaremos un enlace a tu correo</p>
-      </div>
-
-      <div v-if="success" class="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-4 text-sm">
-        <p class="font-medium">Correo enviado</p>
-        <p class="mt-1">Revisa tu bandeja de entrada. El enlace expira en 2 horas.</p>
-      </div>
-
-      <form v-else @submit.prevent="handleSubmit" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-          <input
-            v-model="email"
-            type="email"
-            required
-            placeholder="juan@ejemplo.com"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
-          {{ error }}
-        </div>
-
-        <button
-          type="submit"
-          :disabled="isLoading"
-          class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition-colors text-sm"
-        >
-          {{ isLoading ? 'Enviando...' : 'Enviar enlace de recuperación' }}
-        </button>
-      </form>
-
-      <p class="text-center text-sm text-gray-500 mt-6">
-        <router-link :to="{ name: 'login' }" class="text-blue-600 hover:underline font-medium">
-          Volver al inicio de sesión
-        </router-link>
-      </p>
-
+  <AuthLayout>
+    <div class="auth-card-header">
+      <h2 class="title-2">Recuperar contraseña</h2>
+      <p class="subtitle">Te enviaremos un código a tu correo</p>
     </div>
-  </div>
+
+    <div v-if="success" class="alert alert-success" style="margin-bottom: var(--space-5);">
+      <strong style="display:block;margin-bottom:var(--space-1)">Correo enviado</strong>
+      Revisa tu bandeja de entrada. El código expira en 2 horas.
+    </div>
+
+    <form v-else class="auth-form" @submit.prevent="handleSubmit">
+      <div class="form-group">
+        <label class="label" for="email">Correo electrónico</label>
+        <input
+          id="email"
+          v-model="email"
+          class="input"
+          type="email"
+          required
+          placeholder="tu@correo.com"
+          autocomplete="email"
+        />
+      </div>
+
+      <div v-if="error" class="alert alert-error">
+        {{ error }}
+      </div>
+
+      <button type="submit" class="btn btn-primary" :disabled="isLoading">
+        <svg v-if="isLoading" style="width:1rem;height:1rem;animation:spin 1s linear infinite" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle style="opacity:.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path style="opacity:.75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+        </svg>
+        {{ isLoading ? 'Enviando...' : 'Enviar código de recuperación' }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <router-link :to="{ name: 'login' }" class="link">
+        ← Volver al inicio de sesión
+      </router-link>
+    </div>
+  </AuthLayout>
 </template>
+
+<style scoped>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>

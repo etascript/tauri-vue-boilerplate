@@ -3,11 +3,17 @@ use sqlx::{sqlite::SqlitePoolOptions, Pool, Sqlite};
 pub type DbPool = Pool<Sqlite>;
 
 pub async fn establish_connection() -> Result<DbPool, sqlx::Error> {
-    let database_url = "sqlite://todo_app.db?mode=rwc";
+    // Guardamos la DB en la carpeta padre de src-tauri/ (raíz del proyecto)
+    // para que el file watcher de Tauri no la detecte y reinicie la app.
+    let db_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("todo_app.db");
+    let database_url = format!("sqlite://{}?mode=rwc", db_path.display());
 
     let pool = SqlitePoolOptions::new()
         .max_connections(5)
-        .connect(database_url)
+        .connect(&database_url)
         .await?;
 
     // Crea la tabla users si no existe (con todos los campos desde el inicio)

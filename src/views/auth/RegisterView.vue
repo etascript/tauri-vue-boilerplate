@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { invoke } from '@tauri-apps/api/core'
+import AuthLayout from '../../components/AuthLayout.vue'
 
 const router = useRouter()
 
@@ -24,80 +25,86 @@ async function handleRegister() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-md w-full max-w-md p-8">
+  <AuthLayout>
+    <div class="auth-card-header">
+      <h2 class="title-2">Crear cuenta</h2>
+      <p class="subtitle">Únete a TodoTauri hoy</p>
+    </div>
 
-      <div class="text-center mb-8">
-        <h1 class="text-2xl font-bold text-gray-900">Crear cuenta</h1>
-        <p class="text-gray-500 text-sm mt-1">Únete a TodoTauri</p>
+    <form class="auth-form" @submit.prevent="handleRegister">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="label" for="name">Nombre</label>
+          <input
+            id="name"
+            v-model="form.name"
+            class="input"
+            type="text"
+            required
+            placeholder="Juan"
+            autocomplete="given-name"
+          />
+        </div>
+        <div class="form-group">
+          <label class="label" for="lastname">Apellido</label>
+          <input
+            id="lastname"
+            v-model="form.lastname"
+            class="input"
+            type="text"
+            required
+            placeholder="Pérez"
+            autocomplete="family-name"
+          />
+        </div>
       </div>
 
-      <form @submit.prevent="handleRegister" class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-            <input
-              v-model="form.name"
-              type="text"
-              required
-              placeholder="Juan"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
-            <input
-              v-model="form.lastname"
-              type="text"
-              required
-              placeholder="Pérez"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
+      <div class="form-group">
+        <label class="label" for="email">Correo electrónico</label>
+        <input
+          id="email"
+          v-model="form.email"
+          class="input"
+          type="email"
+          required
+          placeholder="tu@correo.com"
+          autocomplete="email"
+        />
+      </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-          <input
-            v-model="form.email"
-            type="email"
-            required
-            placeholder="juan@ejemplo.com"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+      <div class="form-group">
+        <label class="label" for="password">Contraseña</label>
+        <input
+          id="password"
+          v-model="form.password"
+          class="input"
+          type="password"
+          required
+          placeholder="••••••••"
+          autocomplete="new-password"
+        />
+      </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-          <input
-            v-model="form.password"
-            type="password"
-            required
-            placeholder="••••••••"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+      <div v-if="error" class="alert alert-error">
+        {{ error }}
+      </div>
 
-        <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
-          {{ error }}
-        </div>
+      <button type="submit" class="btn btn-primary" :disabled="isLoading">
+        <svg v-if="isLoading" style="width:1rem;height:1rem;animation:spin 1s linear infinite" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle style="opacity:.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path style="opacity:.75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+        </svg>
+        {{ isLoading ? 'Creando cuenta...' : 'Crear cuenta' }}
+      </button>
+    </form>
 
-        <button
-          type="submit"
-          :disabled="isLoading"
-          class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition-colors text-sm"
-        >
-          {{ isLoading ? 'Creando cuenta...' : 'Crear cuenta' }}
-        </button>
-      </form>
-
-      <p class="text-center text-sm text-gray-500 mt-6">
-        ¿Ya tienes cuenta?
-        <router-link :to="{ name: 'login' }" class="text-blue-600 hover:underline font-medium">
-          Inicia sesión
-        </router-link>
-      </p>
-
+    <div class="auth-footer">
+      ¿Ya tienes cuenta?
+      <router-link :to="{ name: 'login' }" class="link">Inicia sesión</router-link>
     </div>
-  </div>
+  </AuthLayout>
 </template>
+
+<style scoped>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>

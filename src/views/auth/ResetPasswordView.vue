@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { invoke } from '@tauri-apps/api/core'
+import AuthLayout from '../../components/AuthLayout.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -12,7 +13,6 @@ const success = ref(false)
 const isLoading = ref(false)
 
 onMounted(() => {
-  // Pre-rellena el token si viene en la URL (?token=...)
   if (route.query.token) {
     form.value.token = route.query.token
   }
@@ -32,7 +32,7 @@ async function handleReset() {
       dto: { token: form.value.token, new_password: form.value.new_password }
     })
     success.value = true
-    setTimeout(() => router.push({ name: 'login' }), 2500)
+    setTimeout(() => router.push({ name: 'login', query: { reset: '1' } }), 2500)
   } catch (e) {
     error.value = e
   } finally {
@@ -42,72 +42,77 @@ async function handleReset() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-md w-full max-w-md p-8">
-
-      <div class="text-center mb-8">
-        <h1 class="text-2xl font-bold text-gray-900">Nueva contraseña</h1>
-        <p class="text-gray-500 text-sm mt-1">Ingresa el código recibido y tu nueva contraseña</p>
-      </div>
-
-      <div v-if="success" class="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-4 text-sm">
-        <p class="font-medium">Contraseña actualizada</p>
-        <p class="mt-1">Redirigiendo al inicio de sesión...</p>
-      </div>
-
-      <form v-else @submit.prevent="handleReset" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Código de recuperación</label>
-          <input
-            v-model="form.token"
-            type="text"
-            required
-            placeholder="Pega aquí el código del correo"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-          />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Nueva contraseña</label>
-          <input
-            v-model="form.new_password"
-            type="password"
-            required
-            placeholder="••••••••"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
-          <input
-            v-model="form.confirm_password"
-            type="password"
-            required
-            placeholder="••••••••"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
-          {{ error }}
-        </div>
-
-        <button
-          type="submit"
-          :disabled="isLoading"
-          class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition-colors text-sm"
-        >
-          {{ isLoading ? 'Guardando...' : 'Guardar nueva contraseña' }}
-        </button>
-      </form>
-
-      <p class="text-center text-sm text-gray-500 mt-6">
-        <router-link :to="{ name: 'login' }" class="text-blue-600 hover:underline font-medium">
-          Volver al inicio de sesión
-        </router-link>
-      </p>
-
+  <AuthLayout>
+    <div class="auth-card-header">
+      <h2 class="title-2">Nueva contraseña</h2>
+      <p class="subtitle">Ingresa el código recibido y tu nueva contraseña</p>
     </div>
-  </div>
+
+    <div v-if="success" class="alert alert-success" style="margin-bottom: var(--space-5);">
+      <strong style="display:block;margin-bottom:var(--space-1)">Contraseña actualizada</strong>
+      Redirigiendo al inicio de sesión...
+    </div>
+
+    <form v-else class="auth-form" @submit.prevent="handleReset">
+      <div class="form-group">
+        <label class="label" for="token">Código de recuperación</label>
+        <input
+          id="token"
+          v-model="form.token"
+          class="input input-mono"
+          type="text"
+          required
+          placeholder="Pega aquí el código del correo"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="label" for="new_password">Nueva contraseña</label>
+        <input
+          id="new_password"
+          v-model="form.new_password"
+          class="input"
+          type="password"
+          required
+          placeholder="••••••••"
+          autocomplete="new-password"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="label" for="confirm_password">Confirmar contraseña</label>
+        <input
+          id="confirm_password"
+          v-model="form.confirm_password"
+          class="input"
+          type="password"
+          required
+          placeholder="••••••••"
+          autocomplete="new-password"
+        />
+      </div>
+
+      <div v-if="error" class="alert alert-error">
+        {{ error }}
+      </div>
+
+      <button type="submit" class="btn btn-primary" :disabled="isLoading">
+        <svg v-if="isLoading" style="width:1rem;height:1rem;animation:spin 1s linear infinite" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle style="opacity:.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path style="opacity:.75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+        </svg>
+        {{ isLoading ? 'Guardando...' : 'Guardar nueva contraseña' }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <router-link :to="{ name: 'login' }" class="link">
+        ← Volver al inicio de sesión
+      </router-link>
+    </div>
+  </AuthLayout>
 </template>
+
+<style scoped>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>

@@ -12,32 +12,60 @@ fn hash_password(password: &str) -> String {
 }
 
 async fn send_email(to: &str, subject: &str, body: String) -> Result<(), String> {
+    // Leemos todo antes del spawn porque las variables de entorno no son Send
     let host = std::env::var("MAILTRAP_HOST")
         .unwrap_or_else(|_| "sandbox.smtp.mailtrap.io".to_string());
     let port: u16 = std::env::var("MAILTRAP_PORT")
         .unwrap_or_else(|_| "587".to_string())
         .parse()
         .unwrap_or(587);
-    let user = std::env::var("MAILTRAP_USER").map_err(|_| "MAILTRAP_USER no configurado".to_string())?;
-    let pass = std::env::var("MAILTRAP_PASS").map_err(|_| "MAILTRAP_PASS no configurado".to_string())?;
+    let user = std::env::var("MAILTRAP_USER")
+        .map_err(|_| "MAILTRAP_USER no configurado".to_string())?;
+    let pass = std::env::var("MAILTRAP_PASS")
+        .map_err(|_| "MAILTRAP_PASS no configurado".to_string())?;
 
-    let email = Message::builder()
-        .from("TodoTauri <noreply@todotauri.dev>".parse().map_err(|e: lettre::address::AddressError| e.to_string())?)
-        .to(to.parse().map_err(|e: lettre::address::AddressError| e.to_string())?)
-        .subject(subject)
-        .body(body)
-        .map_err(|e| e.to_string())?;
+    println!("[SMTP] Iniciando envío a: {}", to);
+    println!("[SMTP] host={} port={} user={}", host, port, user);
 
-    let creds = Credentials::new(user, pass);
+    let to = to.to_string();
+    let subject = subject.to_string();
 
-    let mailer = AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&host)
-        .map_err(|e| e.to_string())?
-        .credentials(creds)
-        .port(port)
-        .build();
+    match tokio::task::spawn(async move {
+        println!("[SMTP] Construyendo mensaje...");
+        let email = Message::builder()
+            .from("TodoTauri <noreply@todotauri.dev>"
+                .parse::<lettre::message::Mailbox>()
+                .map_err(|e| { println!("[SMTP] Error parseando from: {}", e); e.to_string() })?)
+            .to(to.parse::<lettre::message::Mailbox>()
+                .map_err(|e| { println!("[SMTP] Error parseando to: {}", e); e.to_string() })?)
+            .subject(subject)
+            .body(body)
+            .map_err(|e: lettre::error::Error| { println!("[SMTP] Error construyendo body: {}", e); e.to_string() })?;
 
-    mailer.send(email).await.map_err(|e| e.to_string())?;
-    Ok(())
+        println!("[SMTP] Mensaje construido OK. Conectando al servidor...");
+
+        let creds = Credentials::new(user, pass);
+
+        let mailer = AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&host)
+            .map_err(|e| { println!("[SMTP] Error creando mailer: {}", e); e.to_string() })?
+            .credentials(creds)
+            .port(port)
+            .build();
+
+        println!("[SMTP] Mailer construido. Enviando...");
+        let result = mailer.send(email).await.map(|_| ()).map_err(|e| {
+            println!("[SMTP] Error al enviar: {}", e);
+            e.to_string()
+        });
+        println!("[SMTP] Resultado del envío: {:?}", result);
+        result
+    })
+    .await
+    {
+        Ok(Ok(())) => { println!("[SMTP] Correo enviado exitosamente"); Ok(()) },
+        Ok(Err(e)) => { println!("[SMTP] Falló el envío: {}", e); Err(e) },
+        Err(e)     => { println!("[SMTP] Panic en la tarea SMTP: {}", e); Err("Error inesperado al enviar el correo".to_string()) },
+    }
 }
 
 // ── Registro ─────────────────────────────────────────────────────────────────
@@ -86,9 +114,7 @@ pub async fn forgot_password(pool: &DbPool, dto: ForgotPasswordDto) -> Result<()
     let Some(user) = user else { return Ok(()); };
 
     let token = uuid::Uuid::new_v4().to_string().replace('-', "");
-    let expires_at = chrono::Utc::now()
-        .checked_add_signed(chrono::Duration::hours(2))
-        .unwrap()
+    let expires_at = (chrono::Utc::now() + chrono::Duration::hours(2))
         .format("%Y-%m-%d %H:%M:%S")
         .to_string();
 
