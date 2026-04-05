@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Virtual Tour · Ptah360</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <link rel="stylesheet" href="css/hud.css" />
+  </head>
+  <body>
+    <div id="loading-screen">
+      <div id="loading-title">Cargando escena</div>
+      <div id="loading-bar-wrapper"><div id="loading-bar"></div></div>
+      <div id="loading-hint">un momento...</div>
+    </div>
+
+    <div id="hud">
+      <div id="hud-title">Cargando...</div>
+      <div id="hud-scene-counter"></div>
+    </div>
+
+    <div id="panel-overlay" class="hidden">
+      <div id="panel-box">
+        <button id="panel-close">✕</button>
+        <div id="panel-content"></div>
+      </div>
+    </div>
+
+    <a-scene
+      id="main-scene"
+      loading-screen="dotsColor: #00e5ff; backgroundColor: #0a0a0f"
+      vr-mode-ui="enabled: true"
+      renderer="antialias: true; colorManagement: true"
+    >
+      <a-assets id="asset-container" timeout="10000"></a-assets>
+
+      <a-camera
+        id="main-camera"
+        position="0 1.6 0"
+        wasd-controls-enabled="false"
+        look-controls="enabled: false"
+        keyboard-look="speed: 60; enableRoll: false; mouseSens: 0.25"
+        ground-lock="height: 1.6; enabled: false"
+      >
+        <a-cursor
+          id="main-cursor"
+          fuse="false"
+          color="#00e5ff"
+          opacity="0.8"
+          animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+          animation__fusing="property: scale; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500; easing: easeInCubic"
+          animation__mouseleave="property: scale; startEvents: mouseleave; to: 1 1 1; dur: 150"
+          raycaster="objects: .hotspot"
+        ></a-cursor>
+      </a-camera>
+
+      <a-sky id="sky-sphere" color="#1a1a2e"></a-sky>
+      <a-entity id="hotspots-container"></a-entity>
+    </a-scene>
+
+    <script src="js/components/hotspot.js"></script>
+    <script src="js/components/panel.js"></script>
+    <script src="js/components/keyboard-look.js"></script>
+    <script src="js/components/ground-lock.js"></script>
+    <script src="js/StateManager.js"></script>
+    <script src="js/EffectEngine.js"></script>
+    <script src="js/SceneLoader.js"></script>
+    <script src="js/editor-controls.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

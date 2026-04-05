@@ -5,11 +5,9 @@ import tailwindcss from "@tailwindcss/vite";
 const host = process.env.TAURI_DEV_HOST;
 
 export default defineConfig(async () => ({
-  plugins: [
-    tailwindcss(),
-    vue(),
-  ],
+  plugins: [vue(), tailwindcss()],
   clearScreen: false,
+  // Evita que Vite oscurezca los errores de Rust
   server: {
     port: 1420,
     strictPort: true,

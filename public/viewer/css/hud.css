@@ -1,0 +1,283 @@
+/* ════════════════════════════════════════
+   HUD.CSS — overlay 2D sobre la escena 3D
+   ════════════════════════════════════════ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --cyan:    #00e5ff;
+  --cyan-dim: rgba(0, 229, 255, 0.15);
+  --dark:    #0a0a0f;
+  --dark-80: rgba(10, 10, 15, 0.85);
+  --white:   #f0f4f8;
+  --font:    'Segoe UI', system-ui, sans-serif;
+  --radius:  12px;
+}
+
+/* ── HUD superior ── */
+#hud {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: linear-gradient(to bottom, var(--dark-80), transparent);
+  pointer-events: none; /* no bloquea el canvas */
+  font-family: var(--font);
+  color: var(--white);
+}
+
+#hud-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 12px var(--cyan);
+}
+
+#hud-scene-counter {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Panel overlay (trivia, info, etc.) ── */
+#panel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  transition: opacity 0.25s ease;
+}
+
+#panel-overlay.hidden {
+  display: none;
+}
+
+#panel-box {
+  position: relative;
+  width: min(520px, 90vw);
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--dark-80);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: var(--radius);
+  padding: 32px 28px 28px;
+  font-family: var(--font);
+  color: var(--white);
+  box-shadow: 0 0 40px rgba(0, 229, 255, 0.12),
+              0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+#panel-close {
+  position: absolute;
+  top: 12px; right: 14px;
+  background: none;
+  border: none;
+  color: var(--white);
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+  line-height: 1;
+}
+#panel-close:hover { opacity: 1; }
+
+/* ── Contenido del panel ── */
+#panel-content h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--cyan);
+  margin-bottom: 12px;
+  letter-spacing: 0.02em;
+}
+
+#panel-content p {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  opacity: 0.88;
+  margin-bottom: 10px;
+}
+
+/* Trivia */
+.trivia-question {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.trivia-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.trivia-option {
+  padding: 11px 16px;
+  background: var(--cyan-dim);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--white);
+  transition: background 0.15s, border-color 0.15s;
+  text-align: left;
+}
+
+.trivia-option:hover {
+  background: rgba(0, 229, 255, 0.28);
+  border-color: var(--cyan);
+}
+
+.trivia-option.correct {
+  background: rgba(0, 230, 118, 0.2);
+  border-color: #00e676;
+  color: #00e676;
+}
+
+.trivia-option.incorrect {
+  background: rgba(255, 82, 82, 0.2);
+  border-color: #ff5252;
+  color: #ff5252;
+}
+
+.trivia-option:disabled {
+  pointer-events: none;
+}
+
+.trivia-feedback {
+  margin-top: 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  min-height: 22px;
+}
+
+/* ── Loading screen ── */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: #0a0a0f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+#loading-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#loading-bar-wrapper {
+  width: 220px;
+  height: 2px;
+  background: rgba(0, 229, 255, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+#loading-bar {
+  height: 100%;
+  width: 0%;
+  background: #00e5ff;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+}
+
+#loading-title {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(0, 229, 255, 0.6);
+}
+
+#loading-hint {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.1em;
+}
+
+.panel-desc {
+  color: rgba(255,255,255,0.75);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.panel-opciones {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panel-opcion {
+  padding: 12px 20px;
+  background: rgba(255, 152, 0, 0.12);
+  border: 1px solid rgba(255, 152, 0, 0.4);
+  border-radius: 8px;
+  color: #ffb74d;
+  font-size: 1rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.panel-opcion:hover {
+  background: rgba(255, 152, 0, 0.25);
+  border-color: rgba(255, 152, 0, 0.7);
+  color: #fff;
+}
+
+/* ── Dialog navigation ───────────────────── */
+.dialog-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.dialog-nav-left,
+.dialog-nav-right { min-width: 100px; }
+.dialog-nav-right { text-align: right; }
+.dialog-counter {
+  font-size: 11px;
+  color: #52525b;
+  font-family: monospace;
+  letter-spacing: 0.05em;
+}
+.dlg-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: #a1a1aa;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.dlg-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.dlg-btn-primary {
+  border-color: rgba(0,229,255,0.4);
+  background: rgba(0,229,255,0.1);
+  color: #00e5ff;
+}
+.dlg-btn-primary:hover { background: rgba(0,229,255,0.2); }

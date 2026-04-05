@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+:root {
+  --panel: #1c1c1e;
+  --panel-light: #28282c;
+  --panel-border: #3a3a3e;
+  --panel-hover: #323236;
+  --accent: #34d399;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #111113;
+  color: #e4e4e7;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#app { height: 100vh; display: flex; flex-direction: column; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #3a3a3e; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+/* Form elements */
+.field-label {
+  font-size: 10px;
+  color: #52525b;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+input, select, textarea {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  color: #e4e4e7;
+  border-radius: 5px;
+  padding: 6px 9px;
+  font-size: 12px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+}
+textarea { resize: vertical; min-height: 60px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 5px; font-size: 12px;
+  font-weight: 500; cursor: pointer; transition: all 0.15s;
+  border: 1px solid transparent;
+}
+.btn-primary {
+  background: rgba(52,211,153,0.12);
+  border-color: rgba(52,211,153,0.35);
+  color: #34d399;
+}
+.btn-primary:hover { background: rgba(52,211,153,0.2); }
+.btn-ghost {
+  background: transparent;
+  border-color: var(--panel-border);
+  color: #a1a1aa;
+}
+.btn-ghost:hover { border-color: #52525b; color: #e4e4e7; }
+.btn-danger {
+  background: rgba(239,68,68,0.1);
+  border-color: rgba(239,68,68,0.3);
+  color: #f87171;
+}
+.btn-danger:hover { background: rgba(239,68,68,0.18); }
+.btn-sm { padding: 4px 8px; font-size: 11px; }
+
+/* Badge types */
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 7px; border-radius: 4px; font-size: 10px;
+  font-weight: 600; letter-spacing: 0.05em;
+}
+.badge-info      { background: rgba(34,211,238,0.12); color: #22d3ee; }
+.badge-trivia    { background: rgba(250,204,21,0.12);  color: #fbbf24; }
+.badge-decision  { background: rgba(251,146,60,0.12);  color: #fb923c; }
+.badge-teleport  { background: rgba(52,211,153,0.12);  color: #34d399; }
+.badge-navegacion{ background: rgba(167,139,250,0.12); color: #a78bfa; }
+.badge-video     { background: rgba(244,114,182,0.12); color: #f472b6; }
+
+/* Divider */
+.divider { height: 1px; background: var(--panel-border); margin: 8px 0; }
