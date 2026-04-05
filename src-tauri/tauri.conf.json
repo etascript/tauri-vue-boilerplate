@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Ptah Studio 360",
+  "productName": "todo-app",
   "version": "0.1.0",
-  "identifier": "com.etascript.ptah-studio360",
+  "identifier": "com.sebas.todo-app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,19 +12,13 @@
   "app": {
     "windows": [
       {
-        "title": "Ptah Studio 360",
-        "width": 1280,
-        "height": 800,
-        "minWidth": 900,
-        "minHeight": 600
+        "title": "todo-app",
+        "width": 800,
+        "height": 600
       }
     ],
     "security": {
-      "csp": null,
-      "assetProtocol": {
-        "enable": true,
-        "scope": ["**"]
-      }
+      "csp": null
     }
   },
   "bundle": {
@@ -37,6 +31,5 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
-  },
-  "plugins": {}
+  }
 }

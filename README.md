@@ -1,156 +1,153 @@
-# Ptah Studio 360
+# Tauri + Vue 3 — Boilerplate con Auth completa
 
-Herramienta de escritorio para crear y exportar experiencias interactivas 360°. Construida con **Tauri 2 + Vue 3**, genera como output un paquete ZIP autocontenido listo para abrir directamente en cualquier navegador.
-
----
-
-## Guía de usuario
-
-### Requisitos del sistema
-
-- Windows 10/11 (64-bit)
-- Sin dependencias adicionales — el instalador incluye todo lo necesario
+Plantilla base para aplicaciones de escritorio multiplataforma con autenticación lista para usar. Pensada para ser forkeada o copiada como punto de partida para cualquier proyecto nuevo.
 
 ---
 
-### Inicio rápido
+## Tecnologías
 
-1. Abre la aplicación. Verás el panel de proyectos.
-2. Haz clic en **+ Nuevo proyecto** y asígnale un nombre.
-3. Se abre el editor con una escena vacía lista para configurar.
-
----
-
-### El editor
-
-La interfaz principal tiene tres zonas:
-
-| Zona | Descripción |
-|---|---|
-| **Panel izquierdo** | Lista de escenas del tour |
-| **Centro** | Previsualización en tiempo real (A-Frame/WebGL) |
-| **Panel derecho** | Configuración de escena y lista de hotspots |
-
-#### Barra superior
-
-- **← Volver** — regresa al panel de proyectos (pide confirmación si hay cambios sin guardar)
-- **Nombre del tour** — editable directamente; confirma con Enter o clic afuera
-- **● Sin guardar / ✓ Guardado** — indicador de estado
-- **⏱ Auto** — activa autosave cada 3 minutos
-- **↺ Historial** — restaura versiones anteriores (guarda hasta 20 snapshots por proyecto)
-- **💾 Guardar** — guarda manualmente (también con **Ctrl+S**)
-- **⬡ Preview** — abre el viewer en ventana emergente
-- **↓ Exportar ZIP** — genera el paquete distribuible
+| Capa | Tecnología | Versión |
+|---|---|---|
+| Frontend | Vue 3 (`<script setup>`) | ^3.5 |
+| Build / Dev server | Vite | ^6.4 |
+| Desktop runtime | Tauri | ^2 |
+| Enrutamiento | Vue Router | ^4.6 |
+| Estado global | Pinia | ^3 |
+| Backend / Lógica | Rust | 2021 edition |
+| Base de datos | SQLite (via SQLx) | ^0.8 |
+| Email (desarrollo) | Mailtrap SMTP | — |
+| Estilos | Tailwind CSS | ^3 |
 
 ---
 
-### Configurar una escena
+## Qué incluye este boilerplate
 
-Selecciona la escena en el panel izquierdo y usa el formulario derecho.
+### Autenticación completa
+- Registro de usuario (nombre, apellido, email, contraseña)
+- Login con redirección a ruta privada
+- Recuperación de contraseña por email (token con expiración de 2 horas)
+- Establecer nueva contraseña con código recibido por email
+- Logout con limpieza de sesión
 
-#### Fondo
+### Protección de rutas
+- Rutas privadas (`requiresAuth`) — redirigen a `/login` si no hay sesión
+- Rutas de invitado (`guestOnly`) — redirigen a `/` si ya hay sesión activa
+- Sesión persistida en `localStorage` via Pinia
 
-Elige uno de tres modos:
-
-- **✕ Ninguno** — fondo de color sólido (configurable en "Color fallback")
-- **🖼 Panorama 360°** — imagen equirectangular (jpg, png, webp). Haz clic en ↑ para seleccionar el archivo desde tu disco.
-- **🌐 Skybox** — 6 caras de un cubo (cubemap) o imagen equirectangular HDR/EXR
-
-#### Modelo 3D (opcional)
-
-Carga un archivo `.glb` o `.gltf` para añadir geometría 3D sobre el fondo 360°. Ajusta posición, escala y rotación con los campos correspondientes.
-
-#### Spawn
-
-Define dónde aparece la cámara al entrar en la escena:
-- **Spawn posición** — coordenadas X Y Z (ej: `0 1.6 0`)
-- **Spawn rotación** — orientación inicial en grados
-
-#### Color fallback
-
-Color de fondo cuando no hay imagen ni skybox.
+### Estructura backend lista para escalar
+- Patrón por capas: Commands → Services → Repositories → DB
+- SQLite embebido, sin servidor externo
+- Pool de conexiones asíncronas con SQLx
 
 ---
 
-### Hotspots
+## Requisitos previos
 
-Los hotspots son puntos interactivos que el usuario activa haciendo clic en la escena 360°.
-
-#### Tipos disponibles
-
-| Tipo | Descripción |
-|---|---|
-| **info** | Panel de texto con título, descripción e imagen opcional |
-| **trivia** | Pregunta con opciones y retroalimentación por respuesta |
-| **decision** | Elección con múltiples opciones que disparan acciones |
-| **teleport** | Waypoint invisible que mueve la cámara a otra posición |
-| **navegacion** | Navega a otra escena del tour |
-| **video** | Reproduce un video local |
-| **dialogo** | Secuencia de pasos (info, trivia, decisión, video) |
-
-#### Crear un hotspot
-
-1. Haz clic en **+ Nuevo** en el panel de hotspots.
-2. Configura ID, etiqueta, tipo y posición.
-3. Haz clic en **✓ Guardar hotspot**. Aparece inmediatamente en el preview.
-
-#### Posicionar con precisión — Modo Editor
-
-Activa el **Modo Editor** (botón `⬡ Modo Editor` sobre el preview):
-
-- **WASD** — mover la cámara libremente
-- **Arrastrar** — rotar la vista
-- **📍 Spawn** — captura la posición/rotación actual como punto de inicio de la escena
-- **⊕ Colocar hotspot** — clic en cualquier punto de la escena para capturar coordenadas exactas
+- [Node.js](https://nodejs.org/) >= 18
+- [Rust](https://rustup.rs/) (toolchain estable)
+- [Tauri CLI prerequisites](https://tauri.app/start/prerequisites/) para tu sistema operativo
+- Una cuenta en [Mailtrap](https://mailtrap.io/) (gratuita) para pruebas de email
 
 ---
 
-### Exportar el tour
+## Instalación
 
-1. Haz clic en **↓ Exportar ZIP**.
-2. Elige la carpeta y nombre de destino.
-3. Extrae el ZIP. Abre `index.html` directamente en el navegador.
+```bash
+# 1. Clona o copia el repositorio
+git clone <url-del-repo> mi-nuevo-proyecto
+cd mi-nuevo-proyecto
 
-El ZIP contiene:
-```
-index.html          — viewer con el tour incrustado
-js/                 — motor A-Frame y scripts del viewer
-css/                — estilos del viewer
-assets/images/      — imágenes 360° y texturas
-assets/models/      — modelos 3D
+# 2. Instala las dependencias de Node
+npm install
+
+# 3. Configura las variables de entorno del backend
+# Edita el archivo src-tauri/.env con tus credenciales de Mailtrap
 ```
 
-> **Nota:** los modelos 3D (`.glb`) requieren abrir el tour desde un servidor local (no funciona con `file://` por limitaciones del navegador). Las escenas de imagen 360° funcionan directamente.
+### Configurar Mailtrap
 
----
+1. Ve a [mailtrap.io](https://mailtrap.io) → Email Testing → tu inbox
+2. Haz clic en SMTP Settings
+3. Copia las credenciales al archivo `src-tauri/.env`:
 
-### Historial de versiones
+```env
+DATABASE_URL=sqlite://todo_app.db
 
-Cada vez que guardas, se crea automáticamente un snapshot. Para restaurar:
-
-1. Haz clic en **↺ Historial** en la barra superior.
-2. Selecciona el snapshot y haz clic en **Restaurar**.
-
-Se mantienen los últimos 20 snapshots por proyecto.
-
----
-
-### Atajos de teclado
-
-| Atajo | Acción |
-|---|---|
-| **Ctrl+S** | Guardar proyecto |
-| **WASD** (Modo Editor activo) | Mover cámara |
-| **Arrastrar ratón** (Modo Editor) | Rotar vista |
-| **Q / E** (Modo Editor) | Bajar / subir cámara |
-
----
-
-### Dónde se guardan los proyectos
-
-Los proyectos se guardan automáticamente en:
-```
-%APPDATA%\com.etascript.ptah-studio360\projects\
+MAILTRAP_HOST=sandbox.smtp.mailtrap.io
+MAILTRAP_PORT=587
+MAILTRAP_USER=tu_usuario
+MAILTRAP_PASS=tu_password
 ```
 
-Cada proyecto tiene su propio directorio con los assets copiados localmente, por lo que mover o renombrar los archivos originales no afecta al proyecto.
+---
+
+## Desarrollo
+
+```bash
+npm run tauri dev
+```
+
+Esto levanta Vite en `http://localhost:1420` y compila el backend de Rust simultáneamente.
+
+> La primera compilación de Rust puede tardar varios minutos. Las siguientes son incrementales y mucho más rápidas.
+
+## Build de producción
+
+```bash
+npm run tauri build
+```
+
+Genera el instalador para tu sistema operativo en `src-tauri/target/release/bundle/`.
+
+---
+
+## Estructura del proyecto
+
+```
+todo-app/
+├── src/                        # Frontend Vue
+│   ├── main.js                 # Punto de entrada, registra Pinia y Router
+│   ├── App.vue                 # Layout raíz con nav condicional
+│   ├── router/
+│   │   └── index.js            # Rutas y navigation guards
+│   ├── stores/
+│   │   └── auth.js             # Store de autenticación (Pinia)
+│   └── views/
+│       ├── HomeView.vue        # Vista privada principal
+│       └── auth/
+│           ├── LoginView.vue
+│           ├── RegisterView.vue
+│           ├── ForgotPasswordView.vue
+│           └── ResetPasswordView.vue
+│
+└── src-tauri/                  # Backend Rust
+    ├── .env                    # Variables de entorno (no commitear)
+    ├── Cargo.toml              # Dependencias Rust
+    └── src/
+        ├── main.rs             # Entrypoint binario
+        ├── lib.rs              # Configuración de la app Tauri
+        ├── db.rs               # Conexión y esquema SQLite
+        ├── models/             # Structs de DB y DTOs
+        ├── repositories/       # Consultas SQL
+        ├── services/           # Lógica de negocio
+        └── commands/           # Comandos expuestos al frontend
+```
+
+---
+
+## Cómo usar como template para un nuevo proyecto
+
+1. **Copia o forkea** este repositorio
+2. Renombra el proyecto en `package.json` y `src-tauri/Cargo.toml`
+3. Actualiza el `productName` en `src-tauri/tauri.conf.json`
+4. Configura `src-tauri/.env` con tus credenciales
+5. Implementa tus propios módulos siguiendo el patrón existente
+
+> Ver `BACKEND_GUIDE.md` para una guía paso a paso de cómo agregar nuevas funcionalidades al backend.
+
+---
+
+## IDE recomendado
+
+- [VS Code](https://code.visualstudio.com/)
+- Extensiones: [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) · [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) · [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
